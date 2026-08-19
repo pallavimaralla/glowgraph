@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #ffffff;
+  color: #2a3a2a;
+  line-height: 1.6;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}
+
+/* Sage color palette */
+:root {
+  --sage-50: #f8faf8;
+  --sage-100: #f0f3f0;
+  --sage-200: #d8e0d8;
+  --sage-300: #c0ccc0;
+  --sage-400: #8fa88f;
+  --sage-500: #6b8a6b;
+  --sage-600: #5a7a5a;
+  --sage-700: #456a45;
+  --sage-800: #374a37;
+  --sage-900: #2a3a2a;
+}

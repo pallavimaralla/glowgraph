@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://api:5000/api
+      - VITE_FIREBASE_CONFIG=${VITE_FIREBASE_CONFIG}
+    depends_on:
+      - api
+    networks:
+      - glowgraph-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://mongo:27017/glowgraph
+      - REDIS_URL=redis://redis:6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+      - FIREBASE_PRIVATE_KEY=${FIREBASE_PRIVATE_KEY}
+      - FIREBASE_CLIENT_EMAIL=${FIREBASE_CLIENT_EMAIL}
+    depends_on:
+      - mongo
+      - redis
+    volumes:
+      - ./server/src:/app/src
+      - /app/node_modules
+    networks:
+      - glowgraph-network
+
+  mongo:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=glowgraph
+    networks:
+      - glowgraph-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - glowgraph-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mongo-data:
+  redis-data:
+
+networks:
+  glowgraph-network:
+    driver: bridge
